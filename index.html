@@ -992,7 +992,7 @@
     document.getElementById('tab-physician').classList.toggle('active', role === 'physician');
     document.getElementById('tab-staff').classList.toggle('active', role === 'staff');
     document.getElementById('field-physician-practice').style.display = role === 'physician' ? '' : 'none';
-    document.getElementById('field-staff-practice').style.display     = role === 'staff'     ? '' : 'none';
+    document.getElementById('field-staff-practice').style.display     = 'none';
   }
 
   function syncPcheck(cb) {
@@ -1021,21 +1021,14 @@
       currentEmail    = email;
       go(() => { populateDashboard(); showView('dashboard'); });
     } else {
-      // staff — gather checked practices
-      const checked = [...document.querySelectorAll('#field-staff-practice input:checked')].map(cb => cb.value);
-      if (!checked.length || !email || !password) {
-        err.textContent = checked.length ? 'Please fill in all fields to continue.' : 'Select at least one practice.';
+      // staff — just need email + password, pick practice after
+      if (!email || !password) {
+        err.textContent = 'Please enter your email and password.';
         err.classList.add('show'); return;
       }
       err.classList.remove('show');
-      staffPractices = checked;
-      currentEmail   = email;
-      if (checked.length === 1) {
-        currentPractice = checked[0];
-        go(() => { populateDashboard(); showView('dashboard'); });
-      } else {
-        go(() => { populatePicker(); showView('picker'); });
-      }
+      currentEmail = email;
+      go(() => { populatePicker(); showView('picker'); });
     }
   }
 
@@ -1049,7 +1042,7 @@
   function populatePicker() {
     const container = document.getElementById('picker-cards');
     container.innerHTML = '';
-    staffPractices.forEach(key => {
+    Object.keys(practiceData).forEach(key => {
       const pd = practiceData[key] || practiceData.other;
       const card = document.createElement('div');
       card.className = 'picker-card';
@@ -1081,11 +1074,7 @@
 
     // Show "Switch Practice" for multi-practice staff
     const switchBtn = document.getElementById('dash-switch-practice');
-    if (currentRole === 'staff' && staffPractices.length > 1) {
-      switchBtn.style.display = 'flex';
-    } else {
-      switchBtn.style.display = 'none';
-    }
+    switchBtn.style.display = currentRole === 'staff' ? 'flex' : 'none';
   }
 
   /* ─── Terminal population ─── */
