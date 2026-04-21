@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blue Angel Clinical Partners — Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:     #0A2558;
+      --blue:     #1565C0;
+      --blue-lt:  #1E88E5;
+      --gold:     #C9A84C;
+      --gold-lt:  #E8C96A;
+      --bg:       #F0F4FF;
+      --white:    #FFFFFF;
+      --text:     #0D1B3E;
+      --muted:    #6B7A99;
+      --border:   #D4E1F7;
+      --green:    #16A34A;
+      --green-bg: #DCFCE7;
+      --amber:    #D97706;
+      --amber-bg: #FEF3C7;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── VIEW SYSTEM ─── */
+    .view { display: none; }
+    .view.active { display: flex; flex-direction: column; min-height: 100vh; }
+    #view-login.active { align-items: center; justify-content: center; }
+
+    /* ════════════════════════════════════════
+       LOGIN VIEW
+    ════════════════════════════════════════ */
+    #view-login {
+      background: linear-gradient(135deg, #0A2558 0%, #0E3A7A 50%, #1565C0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .particle {
+      position: absolute; border-radius: 50%;
+      opacity: 0.06; background: white;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.06; }
+      90%  { opacity: 0.06; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    .login-card {
+      display: flex;
+      width: 900px;
+      max-width: 95vw;
+      min-height: 560px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Brand panel */
+    .brand-panel {
+      width: 42%;
+      background: linear-gradient(170deg, #061A42 0%, #0A2558 55%, #0E3E90 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 36px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .brand-panel::before {
+      content: ''; position: absolute;
+      width: 320px; height: 320px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.12);
+      top: -60px; right: -80px;
+    }
+    .brand-panel::after {
+      content: ''; position: absolute;
+      width: 200px; height: 200px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.10);
+      bottom: -40px; left: -40px;
+    }
+    .logo-wrap { position: relative; z-index: 1; margin-bottom: 28px; }
+    .logo-wrap svg { width: 110px; height: 110px; filter: drop-shadow(0 4px 16px rgba(201,168,76,0.35)); }
+    .brand-name {
+      position: relative; z-index: 1;
+      color: var(--white); font-size: 22px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.2;
+    }
+    .brand-name span {
+      display: block; color: var(--gold); font-size: 11px;
+      font-weight: 500; letter-spacing: 0.22em; margin-top: 6px;
+    }
+    .brand-divider {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 24px auto; position: relative; z-index: 1;
+    }
+    .brand-tagline {
+      position: relative; z-index: 1;
+      color: rgba(255,255,255,0.62); font-size: 13px;
+      line-height: 1.7; max-width: 220px;
+    }
+    .brand-footer {
+      position: relative; z-index: 1;
+      margin-top: auto; padding-top: 32px;
+      font-size: 11px; color: rgba(255,255,255,0.28); letter-spacing: 0.05em;
+    }
+
+    /* Form panel */
+    .form-panel {
+      flex: 1; background: var(--white);
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 52px 48px;
+    }
+    .form-header { margin-bottom: 28px; }
+    .form-header h2 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .form-header p { font-size: 13px; color: var(--muted); }
+
+    .role-tabs {
+      display: flex; background: var(--bg);
+      border-radius: 10px; padding: 4px;
+      margin-bottom: 24px; gap: 4px;
+    }
+    .role-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 10px; border-radius: 7px; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      transition: all 0.2s; border: none; background: transparent;
+    }
+    .role-tab.active {
+      background: var(--white); color: var(--navy);
+      box-shadow: 0 2px 8px rgba(10,37,88,0.12);
+    }
+
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text); letter-spacing: 0.04em;
+      text-transform: uppercase; margin-bottom: 7px;
+    }
+    .field select, .field input {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 14px; color: var(--text); background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none; appearance: none;
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7A99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+    }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .pw-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--muted); padding: 2px; line-height: 0;
+    }
+    .forgot {
+      display: block; text-align: right; font-size: 12px;
+      color: var(--blue); text-decoration: none;
+      margin-top: -6px; margin-bottom: 20px;
+    }
+    .forgot:hover { text-decoration: underline; }
+    .btn-signin {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: var(--white); border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      letter-spacing: 0.03em; transition: opacity 0.2s, transform 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .btn-signin::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.18) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .btn-signin:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-signin:active { transform: translateY(0); }
+    .signin-note { margin-top: 18px; text-align: center; font-size: 12px; color: var(--muted); }
+
+    /* Staff multi-practice checkboxes */
+    .practice-checks { display: flex; flex-direction: column; gap: 8px; }
+    .pcheck-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .pcheck-item:hover { border-color: var(--blue); background: #EEF4FF; }
+    .pcheck-item input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--blue);
+      flex-shrink: 0; cursor: pointer;
+    }
+    .pcheck-item.checked { border-color: var(--blue); background: #EEF4FF; }
+    .pcheck-info { display: flex; flex-direction: column; gap: 1px; }
+    .pcheck-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pcheck-loc  { font-size: 11px; color: var(--muted); }
+
+    /* ── Practice Picker view ── */
+    #view-picker.active {
+      background: var(--bg); align-items: stretch;
+    }
+    .picker-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px;
+    }
+    .picker-inner { width: 100%; max-width: 520px; }
+    .picker-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    }
+    .picker-title { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .picker-sub   { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+    .picker-cards { display: flex; flex-direction: column; gap: 12px; }
+    .picker-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 20px 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .picker-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 4px 20px rgba(21,101,192,0.12);
+      transform: translateY(-1px);
+    }
+    .picker-card-left { display: flex; flex-direction: column; gap: 3px; }
+    .picker-card-name { font-size: 16px; font-weight: 700; color: var(--text); }
+    .picker-card-sub  { font-size: 13px; color: var(--muted); }
+    .picker-card-arrow { color: var(--blue); flex-shrink: 0; }
+    .picker-back {
+      margin-top: 24px; background: none; border: none; cursor: pointer;
+      font-size: 13px; color: var(--muted); display: flex; align-items: center;
+      gap: 6px; padding: 0;
+    }
+    .picker-back:hover { color: var(--navy); }
+    .alert {
+      padding: 11px 14px; border-radius: 8px; font-size: 13px;
+      margin-bottom: 16px; display: none;
+    }
+    .alert.error { background: #FEE2E2; color: #991B1B; border-left: 3px solid #EF4444; }
+    .alert.show { display: block; }
+
+    @media (max-width: 660px) {
+      .brand-panel { display: none; }
+      .form-panel { padding: 36px 24px; }
+    }
+
+    /* ════════════════════════════════════════
+       SHARED NAV
+    ════════════════════════════════════════ */
+    .top-nav {
+      background: linear-gradient(135deg, #061A42 0%, #0A2558 60%, #0E3A7A 100%);
+      color: white; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 28px;
+      height: 60px; box-shadow: 0 2px 16px rgba(10,37,88,0.28);
+      flex-shrink: 0;
+    }
+    .nav-left { display: flex; align-items: center; gap: 14px; }
+    .nav-brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: white; cursor: pointer; border: none; background: none;
+    }
+    .nav-brand svg { width: 36px; height: 36px; flex-shrink: 0; }
+    .nav-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .nav-brand-text strong { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
+    .nav-brand-text span { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+    .nav-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.15); }
+    .nav-page-title {
+      font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 7px; color: rgba(255,255,255,0.85);
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #22C55E;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-badge {
+      border-radius: 20px; padding: 4px 13px; font-size: 12px; font-weight: 600;
+    }
+    .nav-badge.practice {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+    }
+    .nav-badge.role {
+      background: rgba(201,168,76,0.2); border: 1px solid rgba(201,168,76,0.32);
+      color: var(--gold-lt); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px;
+    }
+    .nav-back-btn {
+      display: flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.65); font-size: 13px; background: none;
+      border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px;
+      border-radius: 7px; cursor: pointer; transition: all 0.2s;
+    }
+    .nav-back-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-signout {
+      background: none; border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.65); padding: 5px 12px;
+      border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .nav-signout:hover { background: rgba(255,255,255,0.08); color: white; }
+
+    /* ════════════════════════════════════════
+       DASHBOARD VIEW
+    ════════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: white; padding: 36px 40px 48px; position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; right: -60px; top: -60px;
+      width: 360px; height: 360px; border-radius: 50%;
+      background: rgba(255,255,255,0.04); pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 6px;
+    }
+    .hero-title { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.58); }
+
+    .dash-main { max-width: 1100px; margin: 0 auto; padding: 36px 32px 60px; flex: 1; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+    .module-card {
+      background: var(--white); border-radius: 16px; padding: 26px 22px;
+      box-shadow: 0 4px 20px rgba(10,37,88,0.08);
+      border: 1.5px solid var(--border);
+      display: flex; flex-direction: column; position: relative; overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .module-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 16px 16px 0 0;
+    }
+    .module-card.active { cursor: pointer; }
+    .module-card.active::before { background: linear-gradient(90deg, var(--navy), var(--blue)); }
+    .module-card.soon::before { background: var(--border); }
+    .module-card.active:hover { box-shadow: 0 8px 36px rgba(10,37,88,0.15); transform: translateY(-2px); }
+    .module-card.soon { opacity: 0.58; }
+
+    .card-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+    }
+    .card-icon.blue { background: linear-gradient(135deg, var(--navy), var(--blue)); }
+    .card-icon.gray { background: #E8EDF5; }
+    .card-icon.blue svg { color: white; }
+    .card-icon.gray svg { color: #9AA4BE; }
+
+    .card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .card-cta {
+      font-size: 13px; font-weight: 600; color: var(--blue);
+      display: flex; align-items: center; gap: 4px;
+      background: none; border: none; cursor: pointer; padding: 0;
+    }
+    .card-cta:hover { color: var(--navy); }
+    .coming-soon {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #9AA4BE;
+      background: var(--bg); padding: 4px 10px; border-radius: 20px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #22C55E;
+      animation: pulse-dot 2s infinite;
+    }
+
+    .dash-footer {
+      text-align: center; padding: 20px; font-size: 12px; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 860px) { .grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 540px) {
+      .grid { grid-template-columns: 1fr; }
+      .dash-main { padding: 24px 16px 40px; }
+      .hero { padding: 24px 20px 32px; }
+    }
+
+    /* ════════════════════════════════════════
+       TERMINAL VIEW
+    ════════════════════════════════════════ */
+    .terminal-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* Terminal content */
+    .term-content { flex: 1; overflow-y: auto; padding: 28px 40px 60px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+    /* Practice banner */
+    .practice-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; padding-bottom: 20px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .pb-left {}
+    .pb-eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .pb-name { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .pb-sub { font-size: 13px; color: var(--muted); }
+
+    /* Tabs */
+    .t-tabs {
+      display: flex; gap: 3px; background: var(--white);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 4px; margin-bottom: 22px; width: fit-content;
+    }
+    .t-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 7px; border: none;
+      background: transparent; font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .t-tab.active { background: var(--navy); color: white; }
+
+    .t-panel { display: none; }
+    .t-panel.active { display: block; }
+
+    /* Workflow intro bar */
+    .wf-intro {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wf-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .wf-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .btn-embed {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--navy); color: white; padding: 9px 16px;
+      border-radius: 8px; font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer; flex-shrink: 0; transition: opacity 0.2s;
+    }
+    .btn-embed:hover { opacity: 0.88; }
+    /* Embedded iframe */
+    .wf-frame {
+      width: 100%; height: 74vh; border: 1.5px solid var(--border);
+      border-radius: 10px; background: white;
+    }
+
+    /* Quick access */
+    .qa-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+    }
+    .qa-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 0;
+    }
+    .qa-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; cursor: pointer;
+      text-decoration: none; color: inherit; transition: all 0.15s;
+      text-align: left;
+    }
+    .qa-card:hover { border-color: var(--blue); box-shadow: 0 2px 12px rgba(21,101,192,0.1); }
+    .qa-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .qa-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .qa-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    @media (max-width: 500px) { .qa-grid { grid-template-columns: 1fr; } }
+
+    /* Step accordion */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 13px; overflow: hidden; }
+    .step-hd {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; cursor: pointer; transition: background 0.15s;
+    }
+    .step-hd:hover { background: var(--bg); }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-num.done { background: linear-gradient(135deg, #15803D, #22C55E); }
+    .step-info { flex: 1; }
+    .step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1px; }
+    .step-sub { font-size: 12px; color: var(--muted); }
+    .step-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+    }
+    .step-tag.active  { background: rgba(21,101,192,0.1); color: var(--blue); }
+    .step-tag.pending { background: var(--amber-bg); color: var(--amber); }
+    .step-tag.done    { background: var(--green-bg); color: var(--green); }
+    .step-chev { color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+    .step-card.open .step-chev { transform: rotate(180deg); }
+    .step-bd {
+      display: none; padding: 0 20px 18px 66px;
+      border-top: 1px solid var(--border); padding-top: 14px;
+    }
+    .step-card.open .step-bd { display: block; }
+    .step-bd p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; }
+
+    /* Checklist */
+    .ci {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--text);
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .ci:last-of-type { border-bottom: none; }
+    .ci-box {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid var(--border); background: var(--white);
+      flex-shrink: 0; margin-top: 1px; cursor: pointer;
+      transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .ci-box.checked { background: var(--green); border-color: var(--green); }
+    .ci-box.checked::after { content: '✓'; font-size: 10px; color: white; }
+
+    /* Med table */
+    .med-tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+    .med-tbl th {
+      background: var(--bg); font-weight: 700; font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+      padding: 8px 10px; text-align: left; border-bottom: 1.5px solid var(--border);
+    }
+    .med-tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+    .med-tbl tr:last-child td { border-bottom: none; }
+    .med-tbl tr:hover td { background: var(--bg); }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge.green { background: var(--green-bg); color: var(--green); }
+    .badge.blue  { background: rgba(21,101,192,0.1); color: var(--blue); }
+    .badge.gold  { background: rgba(201,168,76,0.15); color: #92670A; }
+
+    /* Notes */
+    .notes-area {
+      width: 100%; min-height: 100px; border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 10px 12px; font-size: 13px;
+      font-family: inherit; color: var(--text); resize: vertical; outline: none;
+    }
+    .notes-area:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+
+    .info-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 22px; margin-bottom: 14px;
+    }
+    .info-card h3 {
+      font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .ir { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--bg); font-size: 13px; }
+    .ir:last-child { border-bottom: none; }
+    .ir-k { color: var(--muted); }
+    .ir-v { font-weight: 600; color: var(--text); }
+
+    @media (max-width: 800px) {
+      .term-content { padding: 20px 16px 40px; }
+      .pb-name { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     VIEW 1: LOGIN
+════════════════════════════════════════ -->
+<div class="view active" id="view-login">
+  <div class="particles" id="particles"></div>
+
+  <div class="login-card">
+    <!-- Brand panel -->
+    <div class="brand-panel">
+      <div class="logo-wrap">
+        <svg viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="55" cy="55" r="52" stroke="rgba(201,168,76,0.22)" stroke-width="1"/>
+          <circle cx="55" cy="55" r="46" fill="rgba(21,101,192,0.18)"/>
+          <path d="M55 30 C40 28,18 35,14 55 C18 58,30 52,38 48 C32 54,26 64,28 72 C36 70,44 60,48 52 C46 58,44 70,46 78 C52 76,54 64,55 55" fill="rgba(201,168,76,0.92)"/>
+          <path d="M55 30 C70 28,92 35,96 55 C92 58,80 52,72 48 C78 54,84 64,82 72 C74 70,66 60,62 52 C64 58,66 70,64 78 C58 76,56 64,55 55" fill="rgba(201,168,76,0.92)"/>
+          <path d="M55 30 C40 28,18 35,14 55 C18 58,30 52,38 48 C32 54,26 64,28 72 C36 70,44 60,48 52 C46 58,44 70,46 78 C52 76,54 64,55 55" fill="rgba(255,255,255,0.10)"/>
+          <path d="M55 30 C70 28,92 35,96 55 C92 58,80 52,72 48 C78 54,84 64,82 72 C74 70,66 60,62 52 C64 58,66 70,64 78 C58 76,56 64,55 55" fill="rgba(255,255,255,0.10)"/>
+          <ellipse cx="55" cy="26" rx="12" ry="4.5" stroke="rgba(201,168,76,0.85)" stroke-width="2" fill="none"/>
+          <circle cx="55" cy="35" r="6.5" fill="white" opacity="0.92"/>
+          <path d="M49 42 Q55 38 61 42 L63 60 Q55 64 47 60 Z" fill="white" opacity="0.85"/>
+          <rect x="52.5" y="47" width="5" height="10" rx="1.5" fill="rgba(21,101,192,0.7)"/>
+          <rect x="49" y="50.5" width="12" height="4" rx="1.5" fill="rgba(21,101,192,0.7)"/>
+        </svg>
+      </div>
+      <div class="brand-name">
+        Blue Angel
+        <span>Clinical Partners</span>
+      </div>
+      <div class="brand-divider"></div>
+      <p class="brand-tagline">Empowering concierge physicians to deliver exceptional care — together.</p>
+      <div class="brand-footer">Physician Portal &nbsp;·&nbsp; Secure Access</div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="form-panel">
+      <div class="form-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to access your practice portal</p>
+      </div>
+
+      <div class="role-tabs">
+        <button class="role-tab active" id="tab-physician" onclick="setRole('physician')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18M3 6a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="16" r="2"/><path d="M12 14v-2"/></svg>
+          Physician
+        </button>
+        <button class="role-tab" id="tab-staff" onclick="setRole('staff')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Staff
+        </button>
+      </div>
+
+      <div class="alert error" id="login-error">Please fill in all fields to continue.</div>
+
+      <form onsubmit="handleLogin(event)" novalidate>
+        <!-- Physician: single select -->
+        <div class="field" id="field-physician-practice">
+          <label for="f-practice">Practice</label>
+          <select id="f-practice">
+            <option value="" disabled selected>Select your practice</option>
+            <option value="sujansky">Sujansky Concierge Medicine — San Mateo, CA</option>
+            <option value="daniher">Daniher Concierge Medicine — San Mateo, CA</option>
+            <option value="other">Other Practice</option>
+          </select>
+        </div>
+        <!-- Staff: multi-check -->
+        <div class="field" id="field-staff-practice" style="display:none">
+          <label>Practices <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px">(select all that apply)</span></label>
+          <div class="practice-checks">
+            <label class="pcheck-item">
+              <input type="checkbox" value="sujansky" onchange="syncPcheck(this)"/>
+              <span class="pcheck-info">
+                <span class="pcheck-name">Sujansky Concierge Medicine</span>
+                <span class="pcheck-loc">San Mateo, CA</span>
+              </span>
+            </label>
+            <label class="pcheck-item">
+              <input type="checkbox" value="daniher" onchange="syncPcheck(this)"/>
+              <span class="pcheck-info">
+                <span class="pcheck-name">Daniher Concierge Medicine</span>
+                <span class="pcheck-loc">San Mateo, CA</span>
+              </span>
+            </label>
+            <label class="pcheck-item">
+              <input type="checkbox" value="other" onchange="syncPcheck(this)"/>
+              <span class="pcheck-info">
+                <span class="pcheck-name">Other Practice</span>
+                <span class="pcheck-loc">Bay Area, CA</span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-email">Email Address</label>
+          <input type="email" id="f-email" placeholder="you@practice.com" autocomplete="email"/>
+        </div>
+        <div class="field">
+          <label for="f-password">Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="f-password" placeholder="••••••••" autocomplete="current-password"/>
+            <button type="button" class="pw-toggle" onclick="togglePw()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <a href="#" class="forgot">Forgot password?</a>
+        <button type="submit" class="btn-signin" id="signin-btn">Sign In</button>
+      </form>
+
+      <p class="signin-note">Need access? <a href="mailto:joseph@blueangelclinical.com" style="color:var(--blue)">joseph@blueangelclinical.com</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     VIEW 1b: PRACTICE PICKER (staff multi-practice)
+════════════════════════════════════════ -->
+<div class="view" id="view-picker">
+  <nav class="top-nav">
+    <div class="nav-left">
+      <button class="nav-brand" onclick="showView('login')">
+        <svg viewBox="0 0 110 110" fill="none"><circle cx="55" cy="55" r="46" fill="rgba(21,101,192,0.25)"/><path d="M55 30 C40 28,18 35,14 55 C18 58,30 52,38 48 C32 54,26 64,28 72 C36 70,44 60,48 52 C46 58,44 70,46 78 C52 76,54 64,55 55" fill="rgba(201,168,76,0.92)"/><path d="M55 30 C70 28,92 35,96 55 C92 58,80 52,72 48 C78 54,84 64,82 72 C74 70,66 60,62 52 C64 58,66 70,64 78 C58 76,56 64,55 55" fill="rgba(201,168,76,0.92)"/><ellipse cx="55" cy="26" rx="12" ry="4.5" stroke="rgba(201,168,76,0.85)" stroke-width="2" fill="none"/><circle cx="55" cy="35" r="6.5" fill="white" opacity="0.92"/><path d="M49 42 Q55 38 61 42 L63 60 Q55 64 47 60 Z" fill="white" opacity="0.85"/><rect x="52.5" y="47" width="5" height="10" rx="1.5" fill="rgba(21,101,192,0.7)"/><rect x="49" y="50.5" width="12" height="4" rx="1.5" fill="rgba(21,101,192,0.7)"/></svg>
+        <div class="nav-brand-text"><strong>Blue Angel</strong><span>Clinical Partners</span></div>
+      </button>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge role" style="background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.32);color:var(--gold-lt);text-transform:uppercase;letter-spacing:.08em;font-size:11px">Staff</span>
+      <button class="nav-signout" onclick="showView('login')">Sign Out</button>
+    </div>
+  </nav>
+  <div class="picker-body">
+    <div class="picker-inner">
+      <p class="picker-eyebrow">Staff Portal</p>
+      <h2 class="picker-title">Select a Practice</h2>
+      <p class="picker-sub">You have access to multiple practices. Which one are you logging in to today?</p>
+      <div class="picker-cards" id="picker-cards"></div>
+      <button class="picker-back" onclick="showView('login')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to login
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     VIEW 2: DASHBOARD
+════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <nav class="top-nav">
+    <div class="nav-left">
+      <button class="nav-brand" onclick="showView('login')">
+        <svg viewBox="0 0 110 110" fill="none"><circle cx="55" cy="55" r="46" fill="rgba(21,101,192,0.25)"/><path d="M55 30 C40 28,18 35,14 55 C18 58,30 52,38 48 C32 54,26 64,28 72 C36 70,44 60,48 52 C46 58,44 70,46 78 C52 76,54 64,55 55" fill="rgba(201,168,76,0.92)"/><path d="M55 30 C70 28,92 35,96 55 C92 58,80 52,72 48 C78 54,84 64,82 72 C74 70,66 60,62 52 C64 58,66 70,64 78 C58 76,56 64,55 55" fill="rgba(201,168,76,0.92)"/><ellipse cx="55" cy="26" rx="12" ry="4.5" stroke="rgba(201,168,76,0.85)" stroke-width="2" fill="none"/><circle cx="55" cy="35" r="6.5" fill="white" opacity="0.92"/><path d="M49 42 Q55 38 61 42 L63 60 Q55 64 47 60 Z" fill="white" opacity="0.85"/><rect x="52.5" y="47" width="5" height="10" rx="1.5" fill="rgba(21,101,192,0.7)"/><rect x="49" y="50.5" width="12" height="4" rx="1.5" fill="rgba(21,101,192,0.7)"/></svg>
+        <div class="nav-brand-text"><strong>Blue Angel</strong><span>Clinical Partners</span></div>
+      </button>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge practice" id="dash-nav-practice">—</span>
+      <span class="nav-badge role" id="dash-nav-role">—</span>
+      <button id="dash-switch-practice" class="nav-back-btn" style="display:none" onclick="populatePicker();showView('picker')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+        Switch Practice
+      </button>
+      <button class="nav-signout" onclick="showView('login')">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Practice Portal</p>
+      <h1 class="hero-title" id="dash-title">Welcome back</h1>
+      <p class="hero-sub" id="dash-sub">Select a module below to get started</p>
+    </div>
+  </div>
+
+  <div class="dash-main">
+    <p class="section-label">Portal Modules</p>
+    <div class="grid">
+
+      <!-- 1. FUNCTIONAL -->
+      <div class="module-card active" onclick="showView('terminal')">
+        <div class="card-icon blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M6 8l3 3-3 3M11 14h4"/></svg>
+        </div>
+        <div class="card-title">Practice Terminal</div>
+        <p class="card-desc">Access practice-specific workflows, patient intake tools, travel medicine protocols, and operational dashboards.</p>
+        <div class="card-footer">
+          <button class="card-cta">Open Terminal <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <span class="status-dot"></span>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="module-card soon">
+        <div class="card-icon gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4M14 15h2"/></svg></div>
+        <div class="card-title">Billing &amp; Revenue</div>
+        <p class="card-desc">Centralized billing, membership fee tracking, insurance claims, and revenue cycle analytics across all practices.</p>
+        <div class="card-footer"><span class="coming-soon">Coming Soon</span></div>
+      </div>
+
+      <!-- 3 -->
+      <div class="module-card soon">
+        <div class="card-icon gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="card-title">HR &amp; Staffing</div>
+        <p class="card-desc">Employee onboarding, credentialing, scheduling, payroll coordination, and benefits administration across the network.</p>
+        <div class="card-footer"><span class="coming-soon">Coming Soon</span></div>
+      </div>
+
+      <!-- 4 -->
+      <div class="module-card soon">
+        <div class="card-icon gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="card-title">Compliance</div>
+        <p class="card-desc">HIPAA compliance tools, licensing renewals, malpractice tracking, and regulatory documentation for all practices.</p>
+        <div class="card-footer"><span class="coming-soon">Coming Soon</span></div>
+      </div>
+
+      <!-- 5 -->
+      <div class="module-card soon">
+        <div class="card-icon gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+        <div class="card-title">Shared Resources</div>
+        <p class="card-desc">Network-wide clinical protocols, referral templates, vendor contracts, and group purchasing agreements.</p>
+        <div class="card-footer"><span class="coming-soon">Coming Soon</span></div>
+      </div>
+
+      <!-- 6 -->
+      <div class="module-card soon">
+        <div class="card-icon gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
+        <div class="card-title">Analytics &amp; Reports</div>
+        <p class="card-desc">Practice performance metrics, patient satisfaction trends, membership growth, and network-wide financial reporting.</p>
+        <div class="card-footer"><span class="coming-soon">Coming Soon</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="dash-footer">
+    &copy; 2024 Blue Angel Clinical Partners &nbsp;·&nbsp;
+    <a href="mailto:joseph@blueangelclinical.com" style="color:inherit">joseph@blueangelclinical.com</a>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════
+     VIEW 3: TERMINAL
+════════════════════════════════════════ -->
+<div class="view" id="view-terminal">
+  <nav class="top-nav">
+    <div class="nav-left">
+      <button class="nav-back-btn" onclick="showView('dashboard')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Dashboard
+      </button>
+      <span class="nav-divider"></span>
+      <span class="nav-page-title"><span class="live-dot"></span>Practice Terminal</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge practice" id="term-nav-practice">—</span>
+      <button class="nav-signout" onclick="showView('login')">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="terminal-body">
+    <!-- Content -->
+    <div class="term-content">
+
+      <!-- Practice header -->
+      <div class="practice-banner">
+        <div class="pb-left">
+          <p class="pb-eyebrow">Blue Angel Clinical Partners</p>
+          <h2 class="pb-name" id="pb-name">—</h2>
+          <p class="pb-sub" id="pb-sub">—</p>
+        </div>
+      </div>
+
+      <!-- Quick access grid -->
+      <p class="qa-label">Quick Access</p>
+      <div class="qa-grid">
+
+        <a class="qa-card" href="https://justintella.github.io/sujansky-website" target="_blank">
+          <div class="qa-icon" style="background:#EEF4FF">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+          </div>
+          <div class="qa-text">
+            <div class="qa-title">Practice Website</div>
+            <div class="qa-sub">sujansky-website ↗</div>
+          </div>
+        </a>
+
+        <button class="qa-card" onclick="openEmbed()">
+          <div class="qa-icon" style="background:#EEF4FF">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+          </div>
+          <div class="qa-text">
+            <div class="qa-title">Workflow</div>
+            <div class="qa-sub">Travel medicine steps</div>
+          </div>
+        </button>
+
+        <a class="qa-card" href="https://justintella.github.io/travel-medicine-workflow/" target="_blank">
+          <div class="qa-icon" style="background:#F0FDF4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div class="qa-text">
+            <div class="qa-title">Form Responses</div>
+            <div class="qa-sub">View patient submissions ↗</div>
+          </div>
+        </a>
+
+        <a class="qa-card" id="qa-form-link" href="#" target="_blank" onclick="return alertPlaceholder(this, event)">
+          <div class="qa-icon" style="background:#FFF7ED">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>
+          </div>
+          <div class="qa-text">
+            <div class="qa-title">Patient Intake Form</div>
+            <div class="qa-sub">Open intake form ↗</div>
+          </div>
+        </a>
+
+      </div><!-- /qa-grid -->
+
+      <!-- Embedded workflow (shown on demand) -->
+      <div id="embed-section" style="display:none; margin-top:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Travel Medicine Workflow</span>
+          <button onclick="closeEmbed()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            Close
+          </button>
+        </div>
+        <iframe id="wf-iframe" class="wf-frame" src="" title="Travel Medicine Workflow"></iframe>
+      </div>
+
+    </div><!-- /term-content -->
+  </div><!-- /terminal-body -->
+</div>
+
+<script>
+  /* ─── State ─── */
+  let currentRole      = 'physician';
+  let currentPractice  = '';
+  let currentEmail     = '';
+  let staffPractices   = [];   // practices checked on staff login
+
+  const practiceData = {
+    sujansky: { name:'Sujansky Concierge Medicine', physician:'Dr. Ulrike Sujansky, M.D.' },
+    daniher:  { name:'Daniher Concierge Medicine',  physician:'Dr. Amy Daniher, M.D.'    },
+    other:    { name:'Your Practice',               physician:'Physician'                  },
+  };
+
+  /* ─── View switching ─── */
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  /* ─── Particles ─── */
+  (function() {
+    const c = document.getElementById('particles');
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const sz = Math.random() * 60 + 20;
+      p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*20+15}s;animation-delay:${Math.random()*-30}s`;
+      c.appendChild(p);
+    }
+  })();
+
+  /* ─── Login ─── */
+  function setRole(role) {
+    currentRole = role;
+    document.getElementById('tab-physician').classList.toggle('active', role === 'physician');
+    document.getElementById('tab-staff').classList.toggle('active', role === 'staff');
+    document.getElementById('field-physician-practice').style.display = role === 'physician' ? '' : 'none';
+    document.getElementById('field-staff-practice').style.display     = role === 'staff'     ? '' : 'none';
+  }
+
+  function syncPcheck(cb) {
+    cb.closest('.pcheck-item').classList.toggle('checked', cb.checked);
+  }
+
+  function togglePw() {
+    const i = document.getElementById('f-password');
+    i.type = i.type === 'password' ? 'text' : 'password';
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const email    = document.getElementById('f-email').value.trim();
+    const password = document.getElementById('f-password').value;
+    const err      = document.getElementById('login-error');
+
+    if (currentRole === 'physician') {
+      const practice = document.getElementById('f-practice').value;
+      if (!practice || !email || !password) {
+        err.textContent = 'Please fill in all fields to continue.';
+        err.classList.add('show'); return;
+      }
+      err.classList.remove('show');
+      currentPractice = practice;
+      currentEmail    = email;
+      go(() => { populateDashboard(); showView('dashboard'); });
+    } else {
+      // staff — gather checked practices
+      const checked = [...document.querySelectorAll('#field-staff-practice input:checked')].map(cb => cb.value);
+      if (!checked.length || !email || !password) {
+        err.textContent = checked.length ? 'Please fill in all fields to continue.' : 'Select at least one practice.';
+        err.classList.add('show'); return;
+      }
+      err.classList.remove('show');
+      staffPractices = checked;
+      currentEmail   = email;
+      if (checked.length === 1) {
+        currentPractice = checked[0];
+        go(() => { populateDashboard(); showView('dashboard'); });
+      } else {
+        go(() => { populatePicker(); showView('picker'); });
+      }
+    }
+  }
+
+  function go(fn) {
+    const btn = document.getElementById('signin-btn');
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    setTimeout(() => { btn.textContent = 'Sign In'; btn.disabled = false; fn(); }, 800);
+  }
+
+  /* ─── Practice picker ─── */
+  function populatePicker() {
+    const container = document.getElementById('picker-cards');
+    container.innerHTML = '';
+    staffPractices.forEach(key => {
+      const pd = practiceData[key] || practiceData.other;
+      const card = document.createElement('div');
+      card.className = 'picker-card';
+      card.innerHTML = `
+        <div class="picker-card-left">
+          <div class="picker-card-name">${pd.name}</div>
+          <div class="picker-card-sub">${pd.physician} &nbsp;·&nbsp; San Mateo, CA</div>
+        </div>
+        <svg class="picker-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+      card.onclick = () => {
+        currentPractice = key;
+        populateDashboard();
+        showView('dashboard');
+      };
+      container.appendChild(card);
+    });
+  }
+
+  /* ─── Dashboard population ─── */
+  function populateDashboard() {
+    const pd = practiceData[currentPractice] || practiceData.other;
+    const firstName = currentEmail.split('@')[0].split('.')[0];
+    const name = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1) : '';
+
+    document.getElementById('dash-nav-practice').textContent = pd.name;
+    document.getElementById('dash-nav-role').textContent     = currentRole === 'physician' ? 'Physician' : 'Staff';
+    document.getElementById('dash-title').textContent        = name ? `Welcome back, ${name}` : 'Welcome back';
+    document.getElementById('dash-sub').textContent          = `${pd.name} — Select a module to get started`;
+
+    // Show "Switch Practice" for multi-practice staff
+    const switchBtn = document.getElementById('dash-switch-practice');
+    if (currentRole === 'staff' && staffPractices.length > 1) {
+      switchBtn.style.display = 'flex';
+    } else {
+      switchBtn.style.display = 'none';
+    }
+  }
+
+  /* ─── Terminal population ─── */
+  function populateTerminal() {
+    const pd = practiceData[currentPractice] || practiceData.other;
+    document.getElementById('term-nav-practice').textContent = pd.name;
+    document.getElementById('pb-name').textContent           = pd.name;
+    document.getElementById('pb-sub').textContent            = pd.physician + ' · San Mateo, CA';
+    // reset embed on each visit
+    closeEmbed();
+  }
+
+  /* Override dashboard → terminal nav to populate first */
+  const origShowView = showView;
+  window.showView = function(name) {
+    if (name === 'terminal') populateTerminal();
+    origShowView(name);
+  };
+
+  /* ─── Terminal embed ─── */
+  function openEmbed() {
+    const sec = document.getElementById('embed-section');
+    const fr  = document.getElementById('wf-iframe');
+    if (!fr.src || fr.src === window.location.href) {
+      fr.src = 'https://justintella.github.io/travel-medicine-workflow/';
+    }
+    sec.style.display = 'block';
+    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function closeEmbed() {
+    document.getElementById('embed-section').style.display = 'none';
+  }
+  function alertPlaceholder(el, e) {
+    if (el.getAttribute('href') === '#') {
+      e.preventDefault();
+      alert('Add your Patient Intake Form URL to this button in index.html (search for qa-form-link).');
+    }
+  }
+
+  /* ─── Step accordion ─── */
+  function toggleStep(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  /* ─── Checklist ─── */
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+  }
+</script>
+</body>
+</html>
